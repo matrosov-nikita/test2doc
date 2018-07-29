@@ -1,6 +1,7 @@
 package parse
 
 import (
+	"fmt"
 	"go/doc"
 	"go/parser"
 	"go/token"
@@ -31,10 +32,27 @@ func NewPackageDoc(dir string) (*doc.Package, error) {
 }
 
 func setDocFuncsMap(pkgDoc *doc.Package) {
-	funcsMap = make(map[string]*doc.Func, len(pkgDoc.Funcs))
+	methodsMap := getPkgMethods(pkgDoc)
+	funcsMap = make(map[string]*doc.Func, len(pkgDoc.Funcs)+len(methodsMap))
+
 	for _, fn := range pkgDoc.Funcs {
 		funcsMap[fn.Name] = fn
 	}
+
+	for k, fn := range methodsMap {
+		funcsMap[k] = fn
+	}
+}
+
+func getPkgMethods(pkgDoc *doc.Package) map[string]*doc.Func {
+	result := make(map[string]*doc.Func)
+	for _, t := range pkgDoc.Types {
+		for _, f := range t.Methods {
+			result[fmt.Sprintf("%s.%s", t.Name, f.Name)] = f
+		}
+	}
+
+	return result
 }
 
 func getPackageDoc(dir string) (*doc.Package, error) {

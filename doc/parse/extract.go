@@ -44,10 +44,30 @@ func IsFuncInPkg(longFnName string) bool {
 	return doc != nil
 }
 
-// getShortFnName returns the name of the function, given
-// longFnName of the form:
-// github.com/adams-sarah/test2doc/example.GetWidget
+// getShortFnName returns the name of the function
+// without the package name so:
+//   github.com/user/project/package.method
+// becomes
+//   method
+// and
+//   github.com/user/project/package.(*type).method
+// becomes
+//   type.method
 func getShortFnName(longFnName string) string {
-	splitName := strings.Split(longFnName, ".")
-	return splitName[len(splitName)-1]
+	methodRE := regexp.MustCompile(`/(.*)\.(.*)\.(.*)`)
+	funcRE := regexp.MustCompile(`/(.*)\.(.*)`)
+
+	matches := methodRE.FindStringSubmatch(longFnName)
+	if len(matches) > 0 {
+		fnName := strings.Join(matches[len(matches)-2:], ".")
+		fnName = strings.Replace(fnName, "(*", "", -1)
+		return strings.Replace(fnName, ")", "", -1)
+	}
+
+	matches = funcRE.FindStringSubmatch(longFnName)
+	if len(matches) > 0 {
+		return matches[len(matches)-1]
+	}
+
+	return ""
 }
