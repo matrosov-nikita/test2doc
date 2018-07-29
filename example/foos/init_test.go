@@ -4,9 +4,9 @@ import (
 	"testing"
 
 	"github.com/adams-sarah/prettytest"
-	"github.com/adams-sarah/test2doc/test"
-	"github.com/adams-sarah/test2doc/vars"
 	"github.com/gorilla/mux"
+	"github.com/matrosov-nikita/test2doc/test"
+	"github.com/matrosov-nikita/test2doc/vars"
 )
 
 var router *mux.Router
